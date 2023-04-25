@@ -14,10 +14,9 @@ digits_tokens = []
 id_tokens = []
 positive_kleene = '+'
 kleene = '*'
+symbols_Table= []
 
-
-
-test= "parte1(*comentario1*)parte2(*comentario2*)parte3 \n parte4 \n parte5"
+alphabet=['A','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','']
 
 openining_symbol = "(*"
 closing_symbol = "*)"
@@ -90,78 +89,46 @@ def define_digits(text):
 	print(text)
 	pass
 
+##GUARDA LOS TOKEN ACEPTADOS EN ID
+def define_id(text):
+	print ("SOY LA FUNCION DEFINE_ID  Y RECIBI : \n ")
+	print(text)
+	pass
 
+##GUARDA LOS TOKEN ACEPTADOS EN NUMBER
+def define_number(text):
+	print ("SOY LA FUNCION DEFINE_NUMBER  Y RECIBI : \n ")
+	print(text)
+	pass
 
 
 ##ESTA FUNCION ENCONTRARA LAS LINEAS DONDE SE DEFINEN LAS REGEX Y SE LAS PASARA A LAS FUNCIONES CORRESPONDIENTES
-def find_definitions(clean_text):
-	
+
+def find_definitions(clean_text,text_to_find):
 
 	#DELIM DEFINITION
-	delim_text = ""
-	delim_start = clean_text.find('let delim')
-	delim_end =0
-	for i in range (delim_start+1, len(clean_text)):
+	definition_text = ""
+	start = clean_text.find(text_to_find)
+	end =0
+	for i in range (start+1, len(clean_text)):
 		if (clean_text[i]=="l" and clean_text[i+1]=="e" and clean_text[i+2]=="t"):
-			delim_end = i-1
+			end = i-1
 			break
 		if (clean_text[i]=="r" and clean_text[i+1]=="u" and clean_text[i+2]=="l"and clean_text[i+3]=="e"):
-			delim_end = i-1
+			end = i-1
 			break
-	for i in range (delim_start, delim_end):
-		delim_text=delim_text+ clean_text[i]
-	define_delim(delim_text)
-
-	#ws DEFINITION
-	ws_text = ""
-	ws_start = clean_text.find('let ws')
-	ws_end =0
-	for i in range (ws_start+1, len(clean_text)):
-		if (clean_text[i]=="l" and clean_text[i+1]=="e" and clean_text[i+2]=="t"):
-			ws_end = i-1
-			break
-		if (clean_text[i]=="r" and clean_text[i+1]=="u" and clean_text[i+2]=="l"and clean_text[i+3]=="e"):
-			ws_end = i-1
-			break
-	for i in range (ws_start, ws_end):
-		ws_text=ws_text+ clean_text[i]
-	define_ws(ws_text)
-
-
-	#letter DEFINITION
-	letter_text = ""
-	letter_start = clean_text.find('let letter')
-	letter_end =0
-	for i in range (letter_start+1, len(clean_text)):
-		if (clean_text[i]=="l" and clean_text[i+1]=="e" and clean_text[i+2]=="t"):
-			letter_end = i-1
-			break
-		if (clean_text[i]=="r" and clean_text[i+1]=="u" and clean_text[i+2]=="l"and clean_text[i+3]=="e"):
-			letter_end = i-1
-			break
-	for i in range (letter_start, letter_end):
-		letter_text=letter_text+ clean_text[i]
-	define_letter(letter_text)
+	for i in range (start, end):
+		definition_text=definition_text+ clean_text[i]
+	return definition_text
 
 
 
+def interpretRegEx(regex):
+	pass
 
-	#str DEFINITION
-	str_text = ""
-	str_start = clean_text.find('let str')
-	str_end =0
-	for i in range (str_start+1, len(clean_text)):
-		if (clean_text[i]=="l" and clean_text[i+1]=="e" and clean_text[i+2]=="t"):
-			str_end = i-1
-			break
-		if (clean_text[i]=="r" and clean_text[i+1]=="u" and clean_text[i+2]=="l"and clean_text[i+3]=="e"):
-			str_end = i-1
-			break
-	for i in range (str_start, str_end):
-		str_text=str_text+ clean_text[i]
-	define_str(str_text)
-	
 
+def readRegEx(regex):
+	pass
 
 
 def showLEX():
@@ -176,11 +143,23 @@ original_string = file.read()
 clean = removeComments(original_string , openining_symbol , closing_symbol)
 print (clean)
 
-find_definitions(clean)
-
+#find_definitions(clean)
+define_delim(find_definitions(clean,"let delim"))
+define_ws(find_definitions(clean,"let ws"))
+define_letter(find_definitions(clean,"let letter"))
+define_str(find_definitions(clean,"let str"))
+define_digit(find_definitions(clean,"let digit"))
+define_digits(find_definitions(clean,"let digits"))
+define_id(find_definitions(clean,"let id"))
+define_number(find_definitions(clean,"let number"))
 
 # clean = removeComments(test , openining_symbol , closing_symbol)
 # print (clean)
+
+
+
+
+
 
 def read():
 	pass
