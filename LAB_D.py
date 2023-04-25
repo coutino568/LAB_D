@@ -20,12 +20,13 @@ symbols_Table= []
 keywords = []
 errors = []
 
-alphabet=['A','	B','C','D','E','F','G','H','I','J','K','L','M','N','Ñ','O','P','Q','R','S','T','U','V','W','X','Y','Z','a','b','c','d','e','f','g','h','i','j','k','l','m','n','ñ','o','p','q','r','s','t','u','v','w','x','y','z']
+alphabet=['0','1','2','3','4','5','6','7','8','9','A','	B','C','D','E','F','G','H','I','J','K','L','M','N','Ñ','O','P','Q','R','S','T','U','V','W','X','Y','Z','a','b','c','d','e','f','g','h','i','j','k','l','m','n','ñ','o','p','q','r','s','t','u','v','w','x','y','z']
 digits=[]
 openining_symbol = "(*"
 closing_symbol = "*)"
 
-
+prueba="012345"
+print(prueba[1:3])
 ## UTILS
 
 #busca un caracter en una cadena y devuelve la cantidad de veces que lo encontro
@@ -37,9 +38,23 @@ def findAndCount(text,characterToSearch):
 	return count
 
 
+##devuelve los caracteres entre dos letras del alfabeto
+def getBetween(startingCharacter, endingCharacter):
+	temp_list= []
+	flag1=0
+	flag2 =0
+	if (startingCharacter in alphabet and endingCharacter in alphabet):
+		for i in range(0,len(alphabet)):
+
+			if(alphabet[i] == startingCharacter):
+				flag1=i
+
+			if(alphabet[i] == endingCharacter):
+				flag2=i
 
 
-
+	return alphabet[flag1:flag2+1]
+	
 
 
 
@@ -99,7 +114,7 @@ def define_delim(text):
 
 	keywords.append("delim")
 	if(text.find('[')!="-1"):
-		print("encontre un '[' ")
+		#print("encontre un '[' ")
 		if(findAndCount(text,'[')!=findAndCount(text,']')):
 			errors.append("THERE IS A MISSING [] in DELIM")
 		if(findAndCount(text,"'")!=findAndCount(text,"'")):
@@ -107,25 +122,68 @@ def define_delim(text):
 		if(findAndCount(text,'"')!=findAndCount(text,'"')):
 			errors.append("THERE IS A MISSING \"\" in DELIM")
 		countOfDashes= findAndCount(text,'-')
-		
+		countOfDoubleQuotes= findAndCount(text,'"')
 		reduced_text = text[text.find('[')+1:text.find(']')]
 		#reduced_text= text[findAndCount(text,"["):findAndCount(text,"]")]
 		print(reduced_text)
+
+		#'A'-'H'
+		#QUIERE DECIR QUE LOS CAMPOS ACEPTADOS SON UNO O VARIOS RANGOS
 		if (countOfDashes >0):
-			pass
-
-		tokens_indexes= []
-		singleQuoteIndixes = findAndReturnIndexes(reduced_text,"'")
-		temp=""
-		for i in range (0,len(singleQuoteIndixes)):
-			if(i%2 == 0):
-				temp = reduced_text[singleQuoteIndixes[i]:singleQuoteIndixes[i+1]]
+			print("ESCENARIO: LOS TOKENS VIENEN EN UN RANGO")
+			dashesIndexes=findAndReturnIndexes(reduced_text,"-")
+			singleQuoteIndixes = findAndReturnIndexes(reduced_text,"'")
+			print(singleQuoteIndixes)
+			potential_tokens=[]
+			temp=""
+			for i in range (0,len(singleQuoteIndixes)):
+				if(i%2 == 0):
+					print("I is :"+str(i))
+					lowerlimit=singleQuoteIndixes[i]+1
+					upperlimit=singleQuoteIndixes[i+1]
+					print("LOWERLIMIT:"+str(lowerlimit	)+ " ; UPPERLIMIT : "+str(upperlimit))
+					temp = reduced_text[lowerlimit:upperlimit]
+					potential_tokens.append(temp)
+			for i in range (0,len(potential_tokens)):
+				if(i%2 == 0):
+					result=getBetween(potential_tokens[i],potential_tokens[i+1]) 
+					for item in result:
+						tokens.append(item)
+						delim_tokens.append	(item)
 				
-				tokens_indexes= singleQuoteIndixes[i]
 
-			print("LOS INDICES DE LOS TOKENS SON "+ tokens_indexes)
-		print("LO QUE ESTA CONTENIDO EN '' es:"+ reduced_text[i+1])
-		tokens.append(reduced_text[i+1])
+
+		##QUIERE DECIR QUE PUEDE SER UN LISTADO EXPLICITO
+		elif(countOfDoubleQuotes>0):
+			print("ESCENARIO: LOS TOKENS VIENEN EXPLICITAMENTE DEFINIDOS EN COMILLAS DOBLES")
+			doubleQuoteIndixes = findAndReturnIndexes(reduced_text,'"')
+			for i in range	(1 ,len(reduced_text)-1):
+				print(reduced_text[i])
+				tokens.append(reduced_text[i])
+
+		#QUIERE DECIR QUE SOLO SON TOKENS INDIVIDUALES
+		else:
+			print("ESCENARIO: LOS TOKENS VIENEN EXPLICITAMENTE DEFINIDOS EN COMILLAS SIMPLES")
+
+			singleQuoteIndixes = findAndReturnIndexes(reduced_text,"'")
+			print(singleQuoteIndixes)
+			temp=""
+			for i in range (0,len(singleQuoteIndixes)):
+				if(i%2 == 0):
+					print("I is :"+str(i))
+					lowerlimit=singleQuoteIndixes[i]+1
+					upperlimit=singleQuoteIndixes[i+1]
+					print("LOWERLIMIT:"+str(lowerlimit	)+ " ; UPPERLIMIT : "+str(upperlimit))
+					temp = reduced_text[lowerlimit:upperlimit]
+					tokens.append(temp)
+
+		
+
+
+
+		print("LOS TOKENS INDIVIDUALES SON: "+ str(tokens))
+		for token in tokens	:
+			print(token)
 
 
 
@@ -233,6 +291,13 @@ def readRegEx(regex):
 
 
 def showLEX():
+	print("DESPUES DE LEER EL .YAL")
+	print("TENGO DEFINIDAS LAS SIGUIENTES PALABRAS CLAVE:\n"+ str( keywords))
+	print("TENGO DEFINIDAS LAS SIGUIENTES LETRAS :\n"+  str(letter_tokens))
+	print("TENGO DEFINIDAS LOS SIGUIENTES DIGITOS :\n"+  str(digit_tokens))
+	print("TENGO DEFINIDAS LOS SIGUIENTES DELIM  :\n"+  str(delim_tokens	))
+	print("TENGO DEFINIDAS LOS SIGUIENTES WS  :\n"+ str(ws_tokens	))
+	
 	print
 
 
@@ -254,7 +319,7 @@ define_delim(find_definitions(clean,"let delim"))
 # define_digits(find_definitions(clean,"let digits"))
 # define_id(find_definitions(clean,"let id"))
 # define_number(find_definitions(clean,"let number"))
-
+showLEX	()
 
 printErrors()
 
