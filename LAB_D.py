@@ -12,7 +12,8 @@ ws_tokens = []
 letter_tokens =[]
 str_tokens =[]
 digit_tokens =[]
-digits_tokens = []
+digits_tokens=[]
+number_tokens = []
 id_tokens = []
 positive_kleene = '+'
 kleene = '*'
@@ -25,8 +26,6 @@ digits=[]
 openining_symbol = "(*"
 closing_symbol = "*)"
 
-prueba="012345"
-print(prueba[1:3])
 ## UTILS
 
 #busca un caracter en una cadena y devuelve la cantidad de veces que lo encontro
@@ -101,18 +100,29 @@ def removeComments(original , openining_symbol, closing_symbol):
 		result=result+original[l]
 	return result
 
+##auxiliar para define_general
+def whatAmIDefining(text):
+	result =""
+	start=text.find("let")+3
+	end=text.find("=")
+	temp = text[start:end]
+	result=temp.replace(" ", "")
+
+	return result
+
 
 
 ##GUARDA LOS TOKEN ACEPTADOS EN DELIM
-def define_delim(text):
+def define_general(text):
 	if (text==""):
 		return
-	print ("SOY LA FUNCION DEFINE_DELIM  Y RECIBI :\n'"+text+"'")
 	tokens=[]
 
 	reduced_text = ""
-
-	keywords.append("delim")
+	received_definition= whatAmIDefining(text)
+	keywords.append(received_definition)
+	#print ("SOY LA FUNCION DEFINE Y RECIBI :\n'"+text+"'" + "\nESTARE DEFINIENDO :"+received_definition	 )
+	#REPORTA SI NO HAY UNA COMILLA 
 	if(text.find('[')!="-1"):
 		#print("encontre un '[' ")
 		if(findAndCount(text,'[')!=findAndCount(text,']')):
@@ -124,24 +134,20 @@ def define_delim(text):
 		countOfDashes= findAndCount(text,'-')
 		countOfDoubleQuotes= findAndCount(text,'"')
 		reduced_text = text[text.find('[')+1:text.find(']')]
-		#reduced_text= text[findAndCount(text,"["):findAndCount(text,"]")]
-		print(reduced_text)
+		#print(reduced_text)
 
 		#'A'-'H'
 		#QUIERE DECIR QUE LOS CAMPOS ACEPTADOS SON UNO O VARIOS RANGOS
 		if (countOfDashes >0):
-			print("ESCENARIO: LOS TOKENS VIENEN EN UN RANGO")
+			#print("ESCENARIO: LOS TOKENS VIENEN EN UN RANGO")
 			dashesIndexes=findAndReturnIndexes(reduced_text,"-")
 			singleQuoteIndixes = findAndReturnIndexes(reduced_text,"'")
-			print(singleQuoteIndixes)
 			potential_tokens=[]
 			temp=""
 			for i in range (0,len(singleQuoteIndixes)):
 				if(i%2 == 0):
-					print("I is :"+str(i))
 					lowerlimit=singleQuoteIndixes[i]+1
 					upperlimit=singleQuoteIndixes[i+1]
-					print("LOWERLIMIT:"+str(lowerlimit	)+ " ; UPPERLIMIT : "+str(upperlimit))
 					temp = reduced_text[lowerlimit:upperlimit]
 					potential_tokens.append(temp)
 			for i in range (0,len(potential_tokens)):
@@ -149,46 +155,51 @@ def define_delim(text):
 					result=getBetween(potential_tokens[i],potential_tokens[i+1]) 
 					for item in result:
 						tokens.append(item)
-						delim_tokens.append	(item)
 				
 
 
 		##QUIERE DECIR QUE PUEDE SER UN LISTADO EXPLICITO
 		elif(countOfDoubleQuotes>0):
-			print("ESCENARIO: LOS TOKENS VIENEN EXPLICITAMENTE DEFINIDOS EN COMILLAS DOBLES")
+			#print("ESCENARIO: LOS TOKENS VIENEN EXPLICITAMENTE DEFINIDOS EN COMILLAS DOBLES")
 			doubleQuoteIndixes = findAndReturnIndexes(reduced_text,'"')
 			for i in range	(1 ,len(reduced_text)-1):
-				print(reduced_text[i])
 				tokens.append(reduced_text[i])
 
 		#QUIERE DECIR QUE SOLO SON TOKENS INDIVIDUALES
 		else:
-			print("ESCENARIO: LOS TOKENS VIENEN EXPLICITAMENTE DEFINIDOS EN COMILLAS SIMPLES")
-
+			#print("ESCENARIO: LOS TOKENS VIENEN EXPLICITAMENTE DEFINIDOS EN COMILLAS SIMPLES")
 			singleQuoteIndixes = findAndReturnIndexes(reduced_text,"'")
-			print(singleQuoteIndixes)
+			# print(singleQuoteIndixes)
 			temp=""
 			for i in range (0,len(singleQuoteIndixes)):
 				if(i%2 == 0):
-					print("I is :"+str(i))
 					lowerlimit=singleQuoteIndixes[i]+1
 					upperlimit=singleQuoteIndixes[i+1]
-					print("LOWERLIMIT:"+str(lowerlimit	)+ " ; UPPERLIMIT : "+str(upperlimit))
 					temp = reduced_text[lowerlimit:upperlimit]
 					tokens.append(temp)
 
 		
 
+		# print("LOS TOKENS INDIVIDUALES SON: "+ str(tokens))
+		# for token in tokens	:
+		# 	print(token)
+		if( received_definition=="digit"):
+			for token	in	tokens:
+				digit_tokens.append	(token)
+			
+		elif(received_definition=="delim"):
+			for token	in	tokens:
+				delim_tokens.append	(token)
+			
+		elif(received_definition=="letter"):
+			for token	in	tokens:
+				letter_tokens.append	(token)
+			
 
 
-		print("LOS TOKENS INDIVIDUALES SON: "+ str(tokens))
-		for token in tokens	:
-			print(token)
 
 
 
-
-	pass
 
 
 ##GUARDA LOS TOKEN ACEPTADOS EN WHITE SPACE
@@ -196,39 +207,27 @@ def define_ws(text):
 	if (text==""):
 		return
 	keywords.append("ws")
-	print ("SOY LA FUNCION DEFINE_WS  Y RECIBI :\n'"+text+"'")
+	#print ("SOY LA FUNCION DEFINE_WS  Y RECIBI :\n'"+text+"'")
+	reduced_text = text[text.find('=')+1:len(text)]
+	ws_tokens.append(reduced_text)
 	
-	pass
-
-
-##GUARDA LOS TOKEN ACEPTADOS EN LETTER
-def define_letter(text):
-	if (text==""):
-		return
-	keywords.append("letter")
-	print ("SOY LA FUNCION DEFINE_LETTER  Y RECIBI :\n'"+text+"'")
 	
 
-	pass
+
+
 ##GUARDA LOS TOKEN ACEPTADOS EN STR
 def define_str(text):
 	if (text==""):
 		return
 	keywords.append("str")
-	print ("SOY LA FUNCION DEFINE_STR  Y RECIBI :\n'"+text+"'")
+	#print ("SOY LA FUNCION DEFINE_STR  Y RECIBI :\n'"+text+"'")
+	reduced_text = text[text.find('=')+1:len(text)]
+	str_tokens.append(reduced_text)
 	
 
-	pass
-
-
-##GUARDA LOS TOKEN ACEPTADOS EN DIGIT
-def define_digit(text):
-	if (text==""):
-		return
-	keywords.append("digit")
-	print ("SOY LA FUNCION DEFINE_DIGIT  Y RECIBI :\n'"+text+"'")
 	
-	pass
+
+
 
 
 ##GUARDA LOS TOKEN ACEPTADOS EN DIGITS
@@ -236,25 +235,29 @@ def define_digits(text):
 	if (text==""):
 		return
 	keywords.append("digits")
-	print ("SOY LA FUNCION DEFINE_DIGITS  Y RECIBI :\n'"+text+"'")
+	#print ("SOY LA FUNCION DEFINE_DIGITS  Y RECIBI :\n'"+text+"'")
+	reduced_text = text[text.find('=')+1:len(text)]
+	digits_tokens.append(reduced_text)
 	
-	pass
 
 ##GUARDA LOS TOKEN ACEPTADOS EN ID
 def define_id(text):
 	if (text==""):
 		return
 	keywords.append("id")
-	print ("SOY LA FUNCION DEFINE_ID  Y RECIBI :\n'"+text+"'")
+	#print ("SOY LA FUNCION DEFINE_ID  Y RECIBI :\n'"+text+"'")
+	reduced_text = text[text.find('=')+1:len(text)]
+	id_tokens.append(reduced_text)
 	
-	pass
-
+	
 ##GUARDA LOS TOKEN ACEPTADOS EN NUMBER
 def define_number(text):
 	if (text==""):
 		return
 	keywords.append("number")
-	print ("SOY LA FUNCION DEFINE_NUMBER  Y RECIBI :\n'"+text+"'")
+	#print ("SOY LA FUNCION DEFINE_NUMBER  Y RECIBI :\n'"+text+"'")
+	reduced_text = text[text.find('=')+1:len(text)]
+	number_tokens.append(reduced_text)
 	
 	pass
 
@@ -293,10 +296,13 @@ def readRegEx(regex):
 def showLEX():
 	print("DESPUES DE LEER EL .YAL")
 	print("TENGO DEFINIDAS LAS SIGUIENTES PALABRAS CLAVE:\n"+ str( keywords))
-	print("TENGO DEFINIDAS LAS SIGUIENTES LETRAS :\n"+  str(letter_tokens))
-	print("TENGO DEFINIDAS LOS SIGUIENTES DIGITOS :\n"+  str(digit_tokens))
 	print("TENGO DEFINIDAS LOS SIGUIENTES DELIM  :\n"+  str(delim_tokens	))
-	print("TENGO DEFINIDAS LOS SIGUIENTES WS  :\n"+ str(ws_tokens	))
+	print("TENGO DEFINIDO WS  :\n"+ str(ws_tokens	))
+	print("TENGO DEFINIDAS LAS SIGUIENTES LETRAS :\n"+  str(letter_tokens))
+	print("TENGO DEFINIDO STR :\n"+  str(str_tokens))
+	print("TENGO DEFINIDAS LOS SIGUIENTES DIGITOS :\n"+  str(digit_tokens))
+	print("TENGO DEFINIDO  NUMEROS :\n"+  str(number_tokens))
+	print("TENGO DEFINIDO ID :\n"+  str(id_tokens))
 	
 	print
 
@@ -311,14 +317,17 @@ print (clean)
 
 
 
-define_delim(find_definitions(clean,"let delim"))
-# define_ws(find_definitions(clean,"let ws"))
-# define_letter(find_definitions(clean,"let letter"))
-# define_str(find_definitions(clean,"let str"))
-# define_digit(find_definitions(clean,"let digit"))
-# define_digits(find_definitions(clean,"let digits"))
-# define_id(find_definitions(clean,"let id"))
-# define_number(find_definitions(clean,"let number"))
+#define_delim(find_definitions(clean,"let delim"))
+
+define_general(find_definitions(clean,"let delim"))
+define_general(find_definitions(clean,"let digit"))
+define_general(find_definitions(clean,"let letter"))
+
+define_ws(find_definitions(clean,"let ws"))
+define_str(find_definitions(clean,"let str"))
+define_digits(find_definitions(clean,"let digits"))
+define_id(find_definitions(clean,"let id"))
+define_number(find_definitions(clean,"let number"))
 showLEX	()
 
 printErrors()
